@@ -1,13 +1,3 @@
-include("Types.jl")
-include("Potential.jl")
-include("Updating.jl")
-include("SplitMerge.jl")
-include("HyperUpdates.jl")
-include("Storage.jl")
-include("Extrapolation.jl")
-include("RJ.jl")
-include("Metropolis.jl")
-
 function pem_fit(state0::State, dat::PEMData, priors::Prior, settings::Exact, test_times, burn_in::Int64)
     out1 = pem_sample(state0, dat, priors, settings)
     out2 = pem_sample(state0, dat, priors, settings)
