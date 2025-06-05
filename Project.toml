@@ -11,3 +11,13 @@ Optim = "429524aa-4258-5aef-a3af-852621145aeb"
 ParetoSmooth = "a68b5a21-f429-434e-8bfa-46b447300aac"
 SpecialFunctions = "276daf66-3868-5448-9aa4-cd146d93841b"
 Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
+
+[compat]
+julia = "1"
+Distributions = "0.25"
+LinearAlgebra = "1"
+MCMCDiagnosticTools = "0.3"
+Optim = "1"
+ParetoSmooth = "0.7"
+SpecialFunctions = "2"
+Statistics = "1"
