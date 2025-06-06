@@ -1,5 +1,5 @@
 
-function AV_calc!(state::State, dyn::Dynamics, priors::Prior)
+function AV_calc!(state::State, dat::PEMData, dyn::Dynamics, priors::Prior)
     x = copy(state.x)
     #x[:,1] .= x[:,1]./priors.σ.σ
     A = cumsum(x, dims = 2)
