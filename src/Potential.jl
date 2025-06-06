@@ -11,7 +11,7 @@ function AV_calc!(state::State, dat::PEMData, dyn::Dynamics, priors::Prior)
 end
 
 function U_new!(state::State, dyn::Dynamics, priors::Prior)
-    AV_calc!(state, dyn, priors)
+    AV_calc!(state, dat, dyn, priors)
     U_, ∂U_ = U_eval(state, 0.0, dyn, priors)
     return U_, ∂U_
 end
@@ -79,7 +79,7 @@ end
 
 function ∇U(state::State, dat::PEMData, dyn::Dynamics, priors::BasicPrior)
     ∇U_out = zeros(size(state.active))
-    AV_calc!(state, dyn, priors)
+    AV_calc!(state, dat, dyn, priors)
     # L x J matrix
     U_ind = reverse(cumsum(reverse(exp.(dyn.A.*priors.σ.σ).*dyn.W .- dyn.δ, dims = 2), dims = 2), dims = 2)
     # Convert to p x J matrix
@@ -103,7 +103,7 @@ end
 
 function ∇U(state::State, dat::PEMData, dyn::Dynamics, priors::EulerMaruyama)
     ∇U_out = zeros(size(state.active))
-    AV_calc!(state, dyn, priors)
+    AV_calc!(state, dat, dyn, priors)
     # L x J matrix
     U_ind = reverse(cumsum(reverse(exp.(dyn.A.*priors.σ.σ).*dyn.W .- dyn.δ, dims = 2), dims = 2), dims = 2)
     # Convert to p x J matrix
@@ -125,7 +125,7 @@ function ∇U(state::State, dat::PEMData, dyn::Dynamics, priors::EulerMaruyama)
 end
 
 function ∇σ(state::State, dat::PEMData, dyn::Dynamics, priors::Prior, σ::Union{PC, InvGamma})
-    AV_calc!(state, dyn, priors)
+    AV_calc!(state, dat, dyn, priors)
     out = sum(dyn.A.*priors.σ.σ.*(exp.(dyn.A.*priors.σ.σ).*dyn.W .- dyn.δ))
     #println(dyn.A.*priors.σ.σ.*(exp.(dyn.A.*priors.σ.σ).*dyn.W .- dyn.δ))
     #println(out)
