@@ -45,7 +45,7 @@ function pem_sample(state0::State, dat::PEMData, priors::Prior, settings::Splitt
         dyn.ind = 2
     end
     storage = storage_start!(state, settings, dyn, priors, priors.grid)
-    AV_calc!(state, dyn, priors)
+    AV_calc!(state, dat, dyn, priors)
     println("Starting sampling")
     while dyn.ind <= settings.max_ind
         if settings.verbose
@@ -69,7 +69,7 @@ function pem_sample(state0::State, dat::PEMData, priors::Prior, settings::Exact)
         dyn.ind = 2
     end
     storage = storage_start!(state, settings, dyn, priors, priors.grid)
-    AV_calc!(state, dyn, priors)
+    AV_calc!(state, dat, dyn, priors)
     println("Starting sampling")
     while dyn.ind < settings.max_ind
         if settings.verbose
