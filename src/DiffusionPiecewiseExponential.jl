@@ -1,12 +1,12 @@
 module DiffusionPiecewiseExponential
 
-import Distributions
-import LinearAlgebra
-import MCMCDiagnosticTools
-import Optim
-import ParetoSmooth
-import SpecialFunctions
-import Statistics
+using Distributions
+using LinearAlgebra
+using MCMCDiagnosticTools
+using Optim
+using ParetoSmooth
+using SpecialFunctions
+using Statistics
 
 include("Types.jl")
 include("Potential.jl")
