@@ -56,7 +56,7 @@ Repeating the above example:
 
 ## Current work
 
-This package contains all the functionality required to implement these models and generate extrapolations. Current work is focused on:
+This package contains all the functionality required to implement these models and generate extrapolations based on the code available [here](https://github.com/LkHardcastle/PEM_extrap). It is still in the early stages of development. Current work is focused on:
 
 * Functions for automatically plotting outputs
 * Improved documentation and examples
