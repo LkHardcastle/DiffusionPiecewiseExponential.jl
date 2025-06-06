@@ -50,8 +50,32 @@ Analysis for Health Technology Assessment will often use R. This package can be 
 Repeating the above example:
 
 ```
+library(JuliaCall) # Package for calling Julia from R
+julia_setup() # Package initialisation
+julia_library("DiffusionPiecewiseExponential")
+julia_library("Distributions")
+julia_library("Random")
+julia_library("LinearAlgebra")
 
+set.seed(123)
+n = 100
+y = rexp(n, 1)
+cens = as.numeric(y < 1)
+for(i in 1:n){
+  y[i] = ifelse(cens[i] == 1, y[i], 1)
+}
+julia_assign("n", as.integer(n))
+julia_assign("y", y)
+julia_assign("cens", cens)
+julia_command("breaks = vcat(0.01,collect(0.26:0.25:1.01))")
+julia_command("p = 1")
+julia_command("covar = fill(1.0, 1, n)")
 
+julia_source("Setup.jl")
+
+julia_command("priors = BasicPrior(1.0, PC(1.0, 2, 0.5, Inf), FixedW([0.5]), 1.0, CtsPois(7.0, 1.0, 30.0, 1.1), [GaussLangevin(t -> log(0.29), t-> 0.4)], [0.1], 2)")
+julia_command("julia_output = pem_fit(state0, dat, priors, settings, test_times, burn_in)")
+R_output = julia_eval("julia_output")
 ```
 
 ## Current work
