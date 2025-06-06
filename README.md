@@ -2,7 +2,16 @@
 
 This package provides an interface for fitting Diffusion Piecewise Exponential models as introduced in [*Diffusion piecewise exponential models for survival extrapolation using Piecewise Deterministic Monte Carlo*](https://arxiv.org/abs/2505.05932).
 
-Calling the `pem_fit` function runs two chains of the model, and outputs model parameters and MCMC diagnostics using [MCMCDiagnosticTools.jl](https://turinglang.org/MCMCDiagnosticTools.jl/stable/).
+The likelihood of this model is defined by a piecewise constant hazard function
+$$
+\log h(y) = \sum_{j=1}^J\alpha_j1(y \in [s_{j-1},s_j).
+$$
+With a Poisson Point Process prior on the set $\{s_j\}_{j=1}^J \sim \text{PPP}(\gamma, (0,y_+))$, and the prior for $\alpha_j$ being given by the discretisation of a Stochastic Differential Equation
+$$
+\text{d}\alpha_y = \mu(\alpha_y)\text{d}y + \text{d}W_y.
+$$
+
+Calling the `pem_fit` function runs two MCMC chain for the model, outputs model parameters, and MCMC diagnostics using [MCMCDiagnosticTools.jl](https://turinglang.org/MCMCDiagnosticTools.jl/stable/).
 
 A simple example based on simulated data is as follows:
 
