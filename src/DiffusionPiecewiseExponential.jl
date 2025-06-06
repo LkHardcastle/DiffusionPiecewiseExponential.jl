@@ -16,5 +16,7 @@ include("HyperUpdates.jl")
 include("Storage.jl")
 include("Extrapolation.jl")
 include("Sampler.jl")
+include("PreProcessing.jl")
+include("PostProcessing.jl")
 
 end # module DiffusionPiecewiseExponential
