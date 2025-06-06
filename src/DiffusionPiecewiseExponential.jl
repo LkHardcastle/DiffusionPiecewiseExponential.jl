@@ -9,7 +9,7 @@ using SpecialFunctions
 using Statistics
 
 include("Types.jl")
-export ECMC2, Splitting
+export ECMC2, Splitting, BasicPrior, PC, FixedW, GammaLangevin, GaussLangevin, CtsPois
 include("Potential.jl")
 include("Updating.jl")
 include("SplitMerge.jl")
