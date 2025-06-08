@@ -44,7 +44,11 @@ settings = Splitting(nits, nsmp, 1_000_000, 1.0, 5.0, 0.1, false, true, 0.01, 50
 test_times = collect(0.2:0.2:1.0)
 burn_in = 1_000
 # Specify the prior
-priors = BasicPrior(1.0, PC(1.0, 2, 0.5, Inf), FixedW([0.5]), 1.0, CtsPois(7.0, 1.0, 100.0, 1.1), [GaussLangevin(t -> log(0.29), t-> 0.4)], [0.1], 2)
+priors = BasicPrior(1.0, PC(1.0, 2, 0.5, Inf),
+FixedW([0.5]), 1.0,
+CtsPois(7.0, 1.0, 100.0, 1.1), # A Poisson process prior for the knots with intensity 7.0, and maximum knots = 100 on the interval (0.0,1.1)
+[GaussLangevin(t -> log(0.29), t-> 0.4)], # A Gaussian stationary distribution for the log-hazard function with mean = log(0.29) and standard deviation = 0.4
+[0.1], 2)
 # PC(1.0, 2, 0.5, Inf) - A penalised complexity prior for \sigma
 # CtsPois(7.0, 1.0, 100.0, 1.1) - A Poisson process prior for the knots with intensity 7.0, and maximum knots = 100 on the interval (0.0,1.1)
 # [GaussLangevin(t -> log(0.29), t-> 0.4)] - A Gaussian stationary distribution for the log-hazard function with mean = log(0.29) and standard deviation = 0.4
@@ -83,7 +87,10 @@ julia_command("covar = fill(1.0, 1, n)")
 
 julia_source("Setup.jl")
 
-julia_command("priors = BasicPrior(1.0, PC(1.0, 2, 0.5, Inf), FixedW([0.5]), 1.0, CtsPois(7.0, 1.0, 30.0, 1.1), [GaussLangevin(t -> log(0.29), t-> 0.4)], [0.1], 2)")
+julia_command("priors = BasicPrior(1.0, PC(1.0, 2, 0.5, Inf), FixedW([0.5]), 1.0,
+CtsPois(7.0, 1.0, 30.0, 1.1),
+[GaussLangevin(t -> log(0.29), t-> 0.4)],
+[0.1], 2)")
 julia_command("julia_output = pem_fit(state0, dat, priors, settings, test_times, burn_in)")
 R_output = julia_eval("julia_output")
 ```
