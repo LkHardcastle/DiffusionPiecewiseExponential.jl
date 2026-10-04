@@ -1,15 +1,4 @@
 
-function hyper_update!(state::State, dyn::Dynamics, dat::PEMData, priors::Prior)
-    if rand() < 0.9
-        for k in axes(state.x,1)
-            variance_update!(state, priors, priors.σ, k, dyn)
-            weight_update!(state, priors, priors.ω, k)
-        end
-    else
-        grid_update!(state, dyn, dat, priors, priors.grid)
-    end
-end
-
 function grid_update!(state::State, dyn::Dynamics, dat::PEMData, priors::Prior, Grid::Fixed)
     
 end
@@ -137,81 +126,4 @@ function dat_update!(state::State, dyn::Dynamics, dat::PEMData)
     end
     dyn.W = copy(W)
     dyn.δ = copy(δ)
-end
-
-function variance_update!(state::State, priors::Prior, σ::FixedV, k::Int64, dyn::Dynamics)
-
-end
-
-function variance_update!(state::State, priors::Prior, σ::InvGamma, k::Int64, dyn::Dynamics)
-    active_j = filter(idx -> idx[1] == k, state.active)
-    n = length(active_j)
-    if length(active_j) > 1
-        priors.σ.σ[k] = sqrt(rand(InverseGamma(0.5*n + σ.a[k], 0.5*sum(state.x[active_j].^2) + σ.b[k])))
-    end
-end
-
-function variance_update!(state::State, priors::Prior, σ::PC, k::Int64, dyn::Dynamics)
-    # Drift terms don't depend on σ and cancel 
-    σ_prop = exp(log(priors.σ.σ[k]) + rand(Normal(0,priors.σ.h[k])))
-    active_j = filter(idx -> idx[1] == k, state.active)
-    if length(active_j) > 1
-        popfirst!(active_j)
-        σ_old = copy(priors.σ.σ[k])
-        log_new_dens = -U_new!(state, dyn, priors)[1] + log_exp_logpdf(log(priors.σ.σ[k]), priors.σ.a[k])
-        priors.σ.σ[k] = copy(σ_prop)
-        log_prop_dens = -U_new!(state, dyn, priors)[1] + log_exp_logpdf(log(σ_prop), priors.σ.a[k])
-        priors.σ.σ[k] = copy(σ_old)
-        α = min(1, exp(log_prop_dens - log_new_dens))
-        acc = 0
-        if rand() < α
-            acc = 1
-            priors.σ.σ[k] = copy(σ_prop)
-        end
-        priors.σ.ind += 1
-        # Adaptation 
-        if priors.σ.ind < 1_000
-            priors.σ.h[k] = exp(log(priors.σ.h[k]) + (priors.σ.ind^(-0.6))*(α - 0.44))
-        end
-    end
-end 
-
-function variance_update!(state::State, priors::Prior, σ::Unif, k::Int64, dyn)
-    # Drift terms don't depend on σ and cancel 
-    σ_prop = exp(log(priors.σ.σ[k]) + rand(Normal(0,priors.σ.h[k])))
-    active_j = filter(idx -> idx[1] == k, state.active)
-    if length(active_j) > 1
-        popfirst!(active_j)
-        σ_old = priors.σ.σ[k]
-        log_new_dens = U_eval(state, 0.0, dyn, priors)[1]
-        priors.σ.σ[k] = copy(σ_prop)
-        log_prop_dens = U_eval(state, 0.0, dyn, priors)[1]
-        priors.σ.σ[k] = σ_old
-        α = min(1, exp(log_prop_dens - log_new_dens))
-        acc = 0
-        if rand() < α
-            acc = 1
-            priors.σ.σ[k] = copy(σ_prop)
-        end
-        priors.σ.ind += 1
-        # Adaptation 
-        if priors.σ.ind < 1_000
-            priors.σ.h[k] = exp(log(priors.σ.h[k]) + (priors.σ.ind^(-0.6))*(α - 0.44))
-        end
-    end
-end 
-
-
-function log_exp_logpdf(logσ::Float64,a::Float64)
-    return logσ - exp(logσ)*a
-end
-
-function weight_update!(state::State, priors::Prior, ω::FixedW, k::Int64)
-
-end
-
-function weight_update!(state::State, priors::Prior, ω::Beta, k::Int64)
-    active_j = filter(idx -> idx[1] == k, state.active)
-    #priors.ω.ω[k] = rand(Distributions.Beta(priors.ω.a[k] + size(active_j,1) - 1, priors.ω.b[k] + prod(size(state.s,2)) - size(active_j,1) + 1))
-    priors.ω.ω[k] = rand(Distributions.Beta(priors.ω.a[k] + size(active_j,1) - 1, priors.ω.b[k] + size(state.s,2) - size(active_j,1)))
 end

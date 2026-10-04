@@ -37,19 +37,19 @@ v0 = v0./norm(v0)
 t0 = 0.0
 state0 = ECMC2(x0, v0, s0, collect(.!s0), breaks, t0, length(breaks), true, findall(s0))
 nits = 10_000
-nsmp = 10
-settings = Splitting(nits, nsmp, 1_000_000, 1.0, 5.0, 0.1, false, true, 0.01, 50.0)
+# Splitting(iterations, knot update rate (> 0 redraws the inactive knots every iteration), refresh rate, verbose, step size, steps per iteration)
+settings = Splitting(nits, 5.0, 0.1, false, 0.01, 50.0)
 
 # Hazard times for diagnostics and burn in iterations
 test_times = collect(0.2:0.2:1.0)
 burn_in = 1_000
 # Specify the prior
-priors = BasicPrior(1.0, PC(1.0, 2, 0.5, Inf),
+priors = BasicPrior(1.0, PC(1.0, 2),
 FixedW([0.5]), 1.0,
 CtsPois(7.0, 1.0, 100.0, 1.1), # A Poisson process prior for the knots with intensity 7.0, and maximum knots = 100 on the interval (0.0,1.1)
 [GaussLangevin(t -> log(0.29), t-> 0.4)], # A Gaussian stationary distribution for the log-hazard function with mean = log(0.29) and standard deviation = 0.4
 [0.1], 2)
-# PC(1.0, 2, 0.5, Inf) - A penalised complexity prior for \sigma
+# PC(1.0, 2) - A penalised complexity prior for \sigma with initial value 1.0 and rate 2
 # CtsPois(7.0, 1.0, 100.0, 1.1) - A Poisson process prior for the knots with intensity 7.0, and maximum knots = 100 on the interval (0.0,1.1)
 # [GaussLangevin(t -> log(0.29), t-> 0.4)] - A Gaussian stationary distribution for the log-hazard function with mean = log(0.29) and standard deviation = 0.4
 
@@ -87,7 +87,7 @@ julia_command("covar = fill(1.0, 1, n)")
 
 julia_source("Setup.jl")
 
-julia_command("priors = BasicPrior(1.0, PC(1.0, 2, 0.5, Inf), FixedW([0.5]), 1.0,
+julia_command("priors = BasicPrior(1.0, PC(1.0, 2), FixedW([0.5]), 1.0,
 CtsPois(7.0, 1.0, 30.0, 1.1),
 [GaussLangevin(t -> log(0.29), t-> 0.4)],
 [0.1], 2)")
