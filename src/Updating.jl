@@ -84,8 +84,8 @@ function update!(state::State, t::Float64, priors::Prior)
     finish = false
     while !finish
         # Find next split time
-        # Update split time
-        split_time = rand(Exponential(1/(size(findall(state.g),1)*split_rate(state, priors, 1)*priors.p_split)))
+        # Update split time; candidates in row k unstick at split_rate(k), matching the row probabilities in split!
+        split_time = rand(Exponential(1/(sum(size(findall(state.g[k,:]),1)*split_rate(state, priors, k) for k in axes(state.x, 1))*priors.p_split)))
         # Find next merge time 
         merge_curr = Inf 
         if size(state.active,1) > priors.J_min && priors.p_split > 0.0 

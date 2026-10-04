@@ -3,6 +3,7 @@ module DiffusionPiecewiseExponential
 using Distributions
 using LinearAlgebra
 using MCMCDiagnosticTools
+using ParetoSmooth
 using SpecialFunctions
 using Statistics
 
@@ -20,6 +21,6 @@ export pem_fit
 include("PreProcessing.jl")
 export init_data, init_params
 include("PostProcessing.jl")
-export get_meansurv
+export get_meansurv, get_llhood, get_looic
 
 end # module DiffusionPiecewiseExponential

@@ -91,6 +91,35 @@ function get_DIC(out, dat::PEMData, burn::Int64)
     return deviance, DIC, dev_new, dev_bar
 end
 
+function get_llhood(out::Dict, dat::PEMData, burn_in::Int64)
+    # Pointwise log-likelihood δ_i log h(y_i) - ∫_0^{y_i} h(u)du, one row per observation (in dat's sorted order)
+    # and one column per stored iteration from burn_in
+    N = size(out["Sk_θ"], 3)
+    llhood = zeros(dat.n, N - burn_in + 1)
+    for ind in burn_in:N
+        J = out["Sk_J"][ind]
+        s_loc = out["Sk_s_loc"][1:J, ind]
+        η = transpose(dat.UQ)*cumsum(out["Sk_θ"][:, 1:J, ind], dims = 2)
+        # As in dat_update!, column j covers [s_loc[j-1], s_loc[j]) and the last column runs to ∞
+        s_left = vcat(0.0, s_loc[1:(end - 1)])
+        # Cumulative hazard at the left end of each column
+        H = hcat(zeros(size(η, 1)), cumsum(exp.(η[:, 1:(end - 1)]).*transpose(diff(s_left)), dims = 2))
+        for i in eachindex(dat.y)
+            j = min(searchsortedlast(s_loc, dat.y[i]) + 1, J)
+            l = dat.grp[i]
+            llhood[i, ind - burn_in + 1] = dat.cens[i]*η[l, j] - H[l, j] - exp(η[l, j])*(dat.y[i] - s_left[j])
+        end
+    end
+    return llhood
+end
+
+function get_looic(out::Dict, dat::PEMData, burn_in::Int64)
+    # LOOIC = -2 elpd_loo, estimated by Pareto-smoothed importance sampling
+    llhood = get_llhood(out, dat, burn_in)
+    est = psis_loo(llhood, chain_index = ones(Int, size(llhood, 2)), source = "mcmc")
+    return -2*est.estimates(:cv_elpd, :total)
+end
+
 
 
 function get_meansurv(haz, s_loc, cov)

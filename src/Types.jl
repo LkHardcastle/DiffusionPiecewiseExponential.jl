@@ -17,6 +17,7 @@ mutable struct Dynamics
     A::Matrix{Float64}
     δ::Matrix{Int64}
     W::Matrix{Float64}
+    min_time::Float64
 end
 
 mutable struct Storage
@@ -167,7 +168,8 @@ function Base.copy(state::ECMC2)
     return ECMC2(copy(state.x), copy(state.v), copy(state.s), copy(state.g), copy(state.s_loc), copy(state.t), copy(state.J), copy(state.b), copy(state.active))
 end
 
-Dynamics(state::State, dat::PEMData) = Dynamics(1, copy(state.x), copy(dat.δ), copy(dat.W))
+# Knots live on (min_time, max_time), with min_time the first break of the initial state
+Dynamics(state::State, dat::PEMData) = Dynamics(1, copy(state.x), copy(dat.δ), copy(dat.W), state.s_loc[1])
 
 # Converts arguments like the default constructor of a non-parametric struct, e.g. Vector{GaussLangevin} to Vector{Diffusion}
 BasicPrior(σ0, σ::Variance, ω::Weight, p_split, grid::Grid, diff, v, J_min) = BasicPrior{typeof(σ), typeof(ω), typeof(grid)}(σ0, σ, ω, p_split, grid, diff, v, J_min)
